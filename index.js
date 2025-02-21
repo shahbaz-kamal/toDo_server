@@ -87,6 +87,31 @@ async function run() {
       });
       res.send(result);
     });
+    // category update
+    app.patch("/task/:id", async (req, res) => {
+      const id = req.params.id;
+      const category = req.body.category;
+      const filter = { _id: new ObjectId(id) };
+
+      if (category === "toDo") {
+        const updatedDoc = {
+          $set: {
+            category: "inProgress",
+          },
+        };
+        const result = await taskCollection.updateOne(filter, updatedDoc);
+        res.send(result);
+      }
+      if (category === "inProgress") {
+        const updatedDoc = {
+          $set: {
+            category: "done",
+          },
+        };
+        const result = await taskCollection.updateOne(filter, updatedDoc);
+        res.send(result);
+      }
+    });
 
     app.delete("/task/:id", async (req, res) => {
       const id = req.params.id;
