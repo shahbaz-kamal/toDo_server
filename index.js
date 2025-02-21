@@ -5,6 +5,12 @@ require("dotenv").config();
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const port = process.env.PORT || 5000;
 const app = express();
+const corsOptions = {
+  origin: [
+    "https://to-do-list-by-shahbaz.netlify.app",
+    "http://localhost:5173",
+  ],
+};
 
 // middleware
 app.use(cors());
@@ -28,12 +34,12 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    // await client.db("admin").command({ ping: 1 });
+    // console.log(
+    //   "Pinged your deployment. You successfully connected to MongoDB!"
+    // );
     // *creating collection
     const userCollection = client.db("task-flow").collection("users");
     const taskCollection = client.db("task-flow").collection("tasks");
@@ -62,6 +68,23 @@ async function run() {
       const email = req.params.email;
       const query = { email };
       const result = await userCollection.findOne(query);
+      res.send(result);
+    });
+
+    // ?tasks related api
+    app.get("/task/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { createdBy: email };
+      const result = await taskCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.post("/task", async (req, res) => {
+      const newTask = req.body;
+      const result = await taskCollection.insertOne({
+        ...newTask,
+        createdAt: new Date(),
+      });
       res.send(result);
     });
   } finally {
