@@ -112,6 +112,21 @@ async function run() {
         res.send(result);
       }
     });
+// updating tasks
+app.patch("/task/update/:id",async(req,res)=>{
+  const {title,description}=req.body
+  const id=req.params.id;
+  const filter={_id:new ObjectId(id)}
+const updatedDoc={
+  $set:{
+    title:title,
+    description:description
+  }
+}
+const result=await taskCollection.updateOne(filter,updatedDoc)
+res.send(result)
+})
+
 
     app.delete("/task/:id", async (req, res) => {
       const id = req.params.id;
